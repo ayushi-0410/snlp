@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class UserController {
-	
+
 	@RequestMapping("/userHome")
 	public String userHome(Principal principal) {
-		
-		System.out.println("in controller principle is "+principal);
-		
+
+		System.out.println("in controller principle is " + principal);
+
 		if (null == principal) {
 			return "index";
 		}
@@ -82,7 +82,7 @@ public class UserController {
 		}
 		return "speechToText";
 	}
-	
+
 	@RequestMapping(value = "/speechTrans")
 	public String speechTrans(Principal principal) {
 		if (null == principal) {
@@ -90,6 +90,7 @@ public class UserController {
 		}
 		return "speechTrans";
 	}
+
 	@RequestMapping(value = "/docTrans")
 	public String docTrans(Principal principal) {
 		if (null == principal) {
@@ -97,6 +98,7 @@ public class UserController {
 		}
 		return "docTrans";
 	}
+
 	@RequestMapping(value = "/pdfToImg")
 	public String pdfToImg(Principal principal) {
 		if (null == principal) {
@@ -104,37 +106,37 @@ public class UserController {
 		}
 		return "pdfToImg";
 	}
-	
+
 	@RequestMapping(value = "/liveStreamingVoice")
 	public String liveStreamingVoice(Principal p) {
-		if(null == p) {
+		if (null == p) {
 			return "index";
 		}
 		return "liveStreamingVoice";
 	}
-	
+
 	@RequestMapping(value = "/imgsToPdf")
 	public String imgsToPdf(Principal p) {
-		if(null == p) {
+		if (null == p) {
 			return "index";
 		}
 		return "imgsToPdf";
-	}	
-	
+	}
+
 	@RequestMapping(value = "/PdfMerger")
 	public String PdfMerger(Principal p) {
-		if(null == p) {
+		if (null == p) {
 			return "index";
 		}
 		return "pdfMerger";
 	}
-	
-	@RequestMapping(value= "/ilmDeskTest")
+
+	@RequestMapping(value = "/ilmDeskTest")
 	public String ilmDeskTest() {
 		return "ilmDeskTest";
 	}
-	
-	@RequestMapping(value= "/chatBotQuery")
+
+	@RequestMapping(value = "/chatBotQuery")
 	public String chatBotQuery() {
 		return "chatBotQuery";
 	}

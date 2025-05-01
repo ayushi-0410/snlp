@@ -11,20 +11,20 @@ import jakarta.persistence.Table;
 
 @Entity(name = "pdfToImageDetails")
 @Table(name = "pdfToImageDetails")
-public class PDFToImageDetails  implements Serializable {
+public class PDFToImageDetails implements Serializable {
 	private static final long serialVersiionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", columnDefinition = "serial")
 	private Integer id;
-	
+
 	@Column(name = "pdfName", columnDefinition = "text")
 	private String pdfName;
-	
+
 	@Column(name = "apiHitDate")
 	private String apiHitDate;
-	
+
 	@Column(name = "apiHitBy")
 	private String apiHitBy;
 

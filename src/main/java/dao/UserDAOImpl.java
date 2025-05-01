@@ -11,8 +11,8 @@ import modal.TranslitrationDetails;
 import modal.TtsDetails;
 import modal.UserFeedBack;
 
-public class UserDAOImpl implements UserDAO{
-	
+public class UserDAOImpl implements UserDAO {
+
 	@Autowired
 	SessionFactory sessionFactory;
 
@@ -50,7 +50,7 @@ public class UserDAOImpl implements UserDAO{
 		sessionFactory.getCurrentSession().persist(td);
 		return true;
 	}
-	
+
 	@Override
 	public boolean saveFeedbackFromUser(UserFeedBack userFB) {
 		// TODO Auto-generated method stub

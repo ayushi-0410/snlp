@@ -13,33 +13,33 @@ import jakarta.persistence.Table;
 @Table(name = "feedbackDetails")
 public class UserFeedBack implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", columnDefinition = "serial")
 	private Integer id;
-	
+
 	@Column(name = "userLoginId")
 	private String userLoginId;
-	
+
 	@Column(name = "userEmail")
 	private String userEmail;
-	
+
 	@Column(name = "userName")
 	private String userName;
-	
+
 	@Column(name = "userMobileNumber")
 	private String userMobileNumber;
-	
+
 	@Column(name = "feedbackDomain")
 	private String feedbackDomain;
-	
+
 	@Column(name = "feedback")
 	private String feedback;
-	
+
 	@Column(name = "feedbackDate")
 	private String feedbackDate;
-	
+
 	@Column(name = "feedbackStatus")
 	private String feedbackStatus;
 
@@ -118,8 +118,5 @@ public class UserFeedBack implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
-	
-	
-	
+
 }

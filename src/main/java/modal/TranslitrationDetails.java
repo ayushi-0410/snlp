@@ -12,25 +12,25 @@ import jakarta.persistence.Table;
 @Entity(name = "translitrationDetails")
 @Table(name = "translitrationDetails")
 public class TranslitrationDetails implements Serializable {
-private static final long serialVersiionUID = 1L;
-	
+	private static final long serialVersiionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", columnDefinition = "serial")
 	private Integer id;
-	
+
 	@Column(name = "reqLanguage")
 	private String reqLanguage;
-	
+
 	@Column(name = "inputText", columnDefinition = "text")
 	private String inputText;
-	
+
 	@Column(name = "apiResponse", columnDefinition = "text")
 	private String apiResponse;
-	
+
 	@Column(name = "apiHitDate")
 	private String apiHitDate;
-	
+
 	@Column(name = "apiHitBy")
 	private String apiHitBy;
 
@@ -85,7 +85,5 @@ private static final long serialVersiionUID = 1L;
 	public static long getSerialversiionuid() {
 		return serialVersiionUID;
 	}
-	
-	
 
 }

@@ -17,8 +17,8 @@ import modal.TranslitrationDetails;
 import modal.TtsDetails;
 import modal.UserFeedBack;
 
-public class UserServiceImpl implements UserService{
-	
+public class UserServiceImpl implements UserService {
+
 	String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	@Autowired
 	UserDAO userDao;
@@ -28,9 +28,9 @@ public class UserServiceImpl implements UserService{
 	public Boolean saveAsrDetails(String lang, Path filePath, String output) {
 		// TODO Auto-generated method stub
 		String apiHitBy = SecurityContextHolder.getContext().getAuthentication().getName();
-		if(apiHitBy == "anonymousUser") {
+		if (apiHitBy == "anonymousUser") {
 			apiHitBy = "guestUser";
-		}	
+		}
 		AsrDetails asrDetails = new AsrDetails();
 		asrDetails.setReqLanguage(lang);
 		asrDetails.setInputFilePath(filePath.toString());
@@ -45,9 +45,9 @@ public class UserServiceImpl implements UserService{
 	public boolean saveTTSDetails(String lang, String text, String output) {
 		// TODO Auto-generated method stub
 		String apiHitBy = SecurityContextHolder.getContext().getAuthentication().getName();
-		if(apiHitBy == "anonymousUser") {
+		if (apiHitBy == "anonymousUser") {
 			apiHitBy = "guestUser";
-		}	
+		}
 		TtsDetails ttsDetails = new TtsDetails();
 		ttsDetails.setReqLanguage(lang);
 		ttsDetails.setInputText(text);
@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService{
 	public boolean saveTranslitrationDetails(String text, String languagePair, String outputText) {
 		// TODO Auto-generated method stub
 		String apiHitBy = SecurityContextHolder.getContext().getAuthentication().getName();
-		if(apiHitBy == "anonymousUser") {
+		if (apiHitBy == "anonymousUser") {
 			apiHitBy = "guestUser";
 		}
 		TranslitrationDetails td = new TranslitrationDetails();
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService{
 	public boolean saveOcrDetails(Path filePath, String languages, String outputText) {
 		// TODO Auto-generated method stub
 		String apiHitBy = SecurityContextHolder.getContext().getAuthentication().getName();
-		if(apiHitBy == "anonymousUser") {
+		if (apiHitBy == "anonymousUser") {
 			apiHitBy = "guestUser";
 		}
 		OcrDetails od = new OcrDetails();
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService{
 			String destLanguage) {
 		// TODO Auto-generated method stub
 		String apiHitBy = SecurityContextHolder.getContext().getAuthentication().getName();
-		if(apiHitBy == "anonymousUser") {
+		if (apiHitBy == "anonymousUser") {
 			apiHitBy = "guestUser";
 		}
 		TranslationDetails td = new TranslationDetails();
@@ -109,13 +109,13 @@ public class UserServiceImpl implements UserService{
 		td.setApiHitBy(apiHitBy);
 		return userDao.saveTranslationDetails(td);
 	}
-	
+
 	@Transactional
 	@Override
 	public boolean saveFeedbackFromUser(String userName, String userNumber, String userEmail, String domainFor,
 			String feedbackMessage) {
 		// TODO Auto-generated method stub
-		System.out.println("hello = "+SecurityContextHolder.getContext().getAuthentication().getName());	
+		System.out.println("hello = " + SecurityContextHolder.getContext().getAuthentication().getName());
 		UserFeedBack userFB = new UserFeedBack();
 		userFB.setUserLoginId(SecurityContextHolder.getContext().getAuthentication().getName());
 		userFB.setUserEmail(userEmail);
@@ -133,7 +133,7 @@ public class UserServiceImpl implements UserService{
 	public Boolean savePDFToImagesDetails(String fileName) {
 		// TODO Auto-generated method stub
 		String apiHitBy = SecurityContextHolder.getContext().getAuthentication().getName();
-		if(apiHitBy == "anonymousUser") {
+		if (apiHitBy == "anonymousUser") {
 			apiHitBy = "guestUser";
 		}
 		PDFToImageDetails p = new PDFToImageDetails();

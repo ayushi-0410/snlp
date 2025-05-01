@@ -22,36 +22,38 @@ import service.HomeService;
 
 @Controller
 public class HomeController {
-	
+
 	@Autowired
 	HomeService homeService;
-	
+
 	@RequestMapping(value = "/")
 	public String home() {
 		System.out.println("in login controller");
 		return "index";
 	}
-	
+
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String showLogin(@RequestParam(value = "error", required = false) String error, ModelMap model,
-			@RequestParam(value = "logout", required = false) String logout, 
+			@RequestParam(value = "logout", required = false) String logout,
 			@RequestParam(value = "expired", required = false) String expired) {
-		
+
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		System.out.println("Authenticated User: " + auth.getName());
 		System.out.println("Roles: " + auth.getAuthorities());
-		
-		System.out.println("hello in login" +error);
-		
+
+		System.out.println("hello in login" + error);
+
 		if (error != null) {
 			System.out.println("error!=null");
 			model.addAttribute("error", "Invalid username and password");
-		} if (logout != null) {
+		}
+		if (logout != null) {
 			System.out.println("logout not equal null");
 			model.addAttribute("msg", "You've been logged out successfully.");
-		} if ("true".equals(expired)) {
-            model.addAttribute("expiredMsg", "Your session has expired. Please login again.");
-        }
+		}
+		if ("true".equals(expired)) {
+			model.addAttribute("expiredMsg", "Your session has expired. Please login again.");
+		}
 		System.out.println("modal value is = " + model.toString());
 		return "login";
 	}
@@ -61,15 +63,15 @@ public class HomeController {
 			HttpServletResponse response) {
 		boolean isUser = false;
 		boolean isAdmin = false;
-		
-		System.out.println("in profile getting auth = "+authentication);
-		
+
+		System.out.println("in profile getting auth = " + authentication);
+
 		/* String email=principal.getName(); */
 		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 		for (GrantedAuthority grantedAuthority : authorities) {
-			
-			System.out.println("in profile role is = "+grantedAuthority.getAuthority());
-			
+
+			System.out.println("in profile role is = " + grantedAuthority.getAuthority());
+
 			if (grantedAuthority.getAuthority().contains("USER")) {
 				isUser = true;
 				break;
@@ -82,11 +84,11 @@ public class HomeController {
 			return "redirect:/userHome";
 		} else if (isAdmin) {
 			return "redirect:/admin";
-		}  else {
+		} else {
 			throw new IllegalStateException();
 		}
 	}
-	
+
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
 		System.out.println("in logout phase");
@@ -99,12 +101,11 @@ public class HomeController {
 
 	@RequestMapping(value = "/403", method = RequestMethod.GET)
 	public String accesssDenied(Principal user, ModelMap model) {
-		
+
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		System.out.println("Authenticated User ____________ : " + auth.getName());
 		System.out.println("Roles _________________ : " + auth.getAuthorities());
-		
-		
+
 		if (user.getName() != null) {
 			model.addAttribute("msg", "Hi " + user.getName() + ", you do not have permission to access this page!");
 		} else {
@@ -112,16 +113,13 @@ public class HomeController {
 		}
 		return "403";
 	}
-	
+
 	@RequestMapping(value = "/index", method = RequestMethod.GET)
 	public String printWelcome2(Principal principal, ModelMap model) {
 		try {
-			if(principal == null)
-			{
+			if (principal == null) {
 				return "index";
-			}
-			else
-			{
+			} else {
 				return "index";
 			}
 		} catch (Exception e) {
@@ -129,23 +127,24 @@ public class HomeController {
 			return "index";
 		}
 	}
-	
-	@RequestMapping(value = "/signUp", method= RequestMethod.POST)
-	public String signUp(@RequestParam("email") String email,@RequestParam("name") String name,@RequestParam("password") String password,@RequestParam("cpassword") String cpassword, ModelMap map) {
+
+	@RequestMapping(value = "/signUp", method = RequestMethod.POST)
+	public String signUp(@RequestParam("email") String email, @RequestParam("name") String name,
+			@RequestParam("password") String password, @RequestParam("cpassword") String cpassword, ModelMap map) {
 		System.out.println("hello in signup controler");
 		boolean checkEmailExist = homeService.checkEmailAlreadyExist(email.trim());
-		System.out.println("check email = "+checkEmailExist);
-		if(checkEmailExist == true ) {
+		System.out.println("check email = " + checkEmailExist);
+		if (checkEmailExist == true) {
 			map.addAttribute("error", "User Name already exist");
 		} else {
-			boolean addNewUser = homeService.saveNewUserDetails(name,email,password);
-			if(addNewUser == true) {
+			boolean addNewUser = homeService.saveNewUserDetails(name, email, password);
+			if (addNewUser == true) {
 				map.addAttribute("error", "Signup successfull, please login");
 			}
 		}
-		return "login";						
+		return "login";
 	}
-	
+
 //	@RequestMapping("/logInAsGuest")
 //	public String logInAsGuest(HttpServletRequest request, Principal p1) {
 //		try {
@@ -160,29 +159,28 @@ public class HomeController {
 //			return null;
 //		}
 //	}
-	
+
 	@RequestMapping("/logInAsGuest")
 	public String logInAsGuest(HttpServletRequest request) {
-	    try {
-	        String userName = homeService.saveGuestUserDetails();
-	        Authentication auth = new UsernamePasswordAuthenticationToken(
-	            userName, null, AuthorityUtils.createAuthorityList("USER")
-	        );
-	        SecurityContextHolder.getContext().setAuthentication(auth);
-	        
-	        // Persist authentication in session (if needed)
-	        request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+		try {
+			String userName = homeService.saveGuestUserDetails();
+			Authentication auth = new UsernamePasswordAuthenticationToken(userName, null,
+					AuthorityUtils.createAuthorityList("USER"));
+			SecurityContextHolder.getContext().setAuthentication(auth);
 
-	        // Fetching the updated Principal
-	        Principal principal = SecurityContextHolder.getContext().getAuthentication();
-	        System.out.println("authentication is = " + auth);
-	        System.out.println("Updated Principal = " + principal);
+			// Persist authentication in session (if needed)
+			request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-	        return "redirect:/userHome";
-	    } catch (Exception ex) {
-	        ex.printStackTrace();
-	        return "errorPage"; // Return a valid view instead of null
-	    }
+			// Fetching the updated Principal
+			Principal principal = SecurityContextHolder.getContext().getAuthentication();
+			System.out.println("authentication is = " + auth);
+			System.out.println("Updated Principal = " + principal);
+
+			return "redirect:/userHome";
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return "errorPage"; // Return a valid view instead of null
+		}
 	}
 
 }

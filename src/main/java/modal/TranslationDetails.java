@@ -11,29 +11,29 @@ import jakarta.persistence.Table;
 
 @Entity(name = "translationDetails")
 @Table(name = "translationDetails")
-public class TranslationDetails implements Serializable{
+public class TranslationDetails implements Serializable {
 	private static final long serialVersiionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", columnDefinition = "serial")
 	private Integer id;
-	
+
 	@Column(name = "sourceLanguage")
 	private String sourceLanguage;
-	
+
 	@Column(name = "sourceText", columnDefinition = "text")
 	private String sourceText;
-	
+
 	@Column(name = "destLanguage")
 	private String destLanguage;
-	
+
 	@Column(name = "destText", columnDefinition = "text")
 	private String destText;
-	
+
 	@Column(name = "apiHitDate")
 	private String apiHitDate;
-	
+
 	@Column(name = "apiHitBy")
 	private String apiHitBy;
 

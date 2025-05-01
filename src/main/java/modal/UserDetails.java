@@ -7,17 +7,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-
 @Entity(name = "userDetails")
 @Table(name = "userDetails")
 public class UserDetails implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(name = "email", unique = true)
 	private String email;
-	
+
 //	@Id
 //	@GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Column(name = "ID", columnDefinition = "serial")

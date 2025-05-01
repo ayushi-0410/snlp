@@ -9,30 +9,28 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-
-
 @Entity(name = "asrDetails")
 @Table(name = "asrDetails")
-public class AsrDetails implements Serializable{
+public class AsrDetails implements Serializable {
 	private static final long serialVersiionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", columnDefinition = "serial")
 	private Integer id;
-	
+
 	@Column(name = "reqLanguage")
 	private String reqLanguage;
-	
+
 	@Column(name = "inputFilePath", columnDefinition = "text")
 	private String inputFilePath;
-	
+
 	@Column(name = "apiResponse", columnDefinition = "text")
 	private String apiResponse;
-	
+
 	@Column(name = "apiHitDate")
 	private String apiHitDate;
-	
+
 	@Column(name = "apiHitBy")
 	private String apiHitBy;
 

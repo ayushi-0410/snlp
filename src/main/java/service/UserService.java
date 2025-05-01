@@ -13,7 +13,7 @@ public interface UserService {
 	boolean saveOcrDetails(Path filePath, String languages, String outputText);
 
 	boolean saveTranslationDetails(String sourceText, String sourceLanguage, String destText, String destLanguage);
-	
+
 	boolean saveFeedbackFromUser(String userName, String userNumber, String userEmail, String domainFor,
 			String feedbackMessage);
 

@@ -11,26 +11,26 @@ import jakarta.persistence.Table;
 
 @Entity(name = "ttsDetails")
 @Table(name = "ttsDetails")
-public class TtsDetails implements Serializable{
+public class TtsDetails implements Serializable {
 	private static final long serialVersiionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", columnDefinition = "serial")
 	private Integer id;
-	
+
 	@Column(name = "reqLanguage")
 	private String reqLanguage;
-	
+
 	@Column(name = "inputText", columnDefinition = "text")
 	private String inputText;
-	
+
 	@Column(name = "apiResponsePath", columnDefinition = "text")
 	private String apiResponsePath;
-	
+
 	@Column(name = "apiHitDate")
 	private String apiHitDate;
-	
+
 	@Column(name = "apiHitBy")
 	private String apiHitBy;
 

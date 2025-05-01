@@ -19,7 +19,7 @@ public interface UserDAO {
 	boolean saveOcrDetails(OcrDetails od);
 
 	boolean saveTranslationDetails(TranslationDetails td);
-	
+
 	boolean saveFeedbackFromUser(UserFeedBack userFB);
 
 	Boolean savePDFToImagesDetails(PDFToImageDetails p);
