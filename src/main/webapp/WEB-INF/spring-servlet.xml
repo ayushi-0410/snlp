@@ -55,7 +55,7 @@
 		<property name="password" value="UeqK7Bo3SEfn6s6m" /> -->
 		
 		<property name="username" value="postgres" />
-		<property name="password" value="postgres" />
+		<property name="password" value="root" />
 
 		<property name="validationQuery" value="SELECT 1" />
 	</bean>
