@@ -1,0 +1,9 @@
+.body_bg{
+	background-color: #dae8f4;
+    background-image: linear-gradient(0, #175f93,  #000000);
+    background-repeat: no-repeat;
+    overflow:auto; height:96vh;
+}
+.text-dark{
+	color:white !important;
+}

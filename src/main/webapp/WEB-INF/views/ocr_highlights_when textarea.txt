@@ -1,0 +1,239 @@
+let wordMapping = [];
+
+function sendToServer(formData) {
+    const styleElement = document.createElement('style');
+    document.head.appendChild(styleElement);
+    styleElement.sheet.insertRule('.loader:after { content: "Generating text..."; }', 0);
+    document.getElementById("overlay").style.display = "block";
+    
+    console.log("Preparing to send AJAX request...");
+	const textOcr = document.getElementById("result");
+    $.ajax({
+        url: 'ajax/converToOcr',
+        type: 'post',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            console.log("AJAX request successful. Response received:", response);
+
+            if (response.error) {
+                alert(response.error);
+                document.getElementById("overlay").style.display = "none";
+                return; // Exit if there's an error
+            } else {
+				console.log("OCR output:", response['ocr-output']);
+                response['ocr-output'] = response['ocr-output'].replace(/\n/g, '\n');
+                console.log("bboxes === "+response['image-info']);
+                
+                //const ocrCord = Object.values(response['image-info']).map(info => info.text).join(' ');
+               
+                textOcr.value = response['ocr-output']; // Set the OCR output in textarea
+                document.getElementById("overlay").style.display = "none";
+                
+            const wordCount = {};
+                wordMapping = Object.values(response['image-info']).map(info => {
+                    let cleanedWord = info.text.replace(/\s+/g, '');  // Remove extra spaces
+                    
+                    // Track occurrences of the same word
+                    if (!wordCount[cleanedWord]) {
+                        wordCount[cleanedWord] = 1;
+                    } else {
+                        wordCount[cleanedWord]++;
+                    }
+
+                    return {
+                        word: cleanedWord,   // Cleaned word without extra spaces
+                        bbox: info.coordinates,
+                        occurrence: wordCount[cleanedWord]  // Track the occurrence index of this word
+                    };
+                });
+            console.log("Word mapping stored:", wordMapping);
+
+            // Attach event listener to detect selection
+            attachTextSelectionEvent();
+            }
+        },
+        error: function(xhr, status, error) {
+            alert("AJAX request failed: " + status + ", " + error);
+            document.getElementById("overlay").style.display = "none";
+        }
+    });
+}
+     
+// Attach event listeners to detect selection
+function attachTextSelectionEvent() {
+    let canvas = document.querySelector('#imagePreview canvas');
+    const originalSrc = canvas.toDataURL(); // Store the original image data URL
+    console.log("Attaching selection change event to textarea...");
+
+    const textArea = document.getElementById('result');
+
+    // Event listeners for selection (mouseup and keyup)
+    textArea.addEventListener('mouseup', function() {
+        handleTextSelection(originalSrc);
+    });
+
+    textArea.addEventListener('keyup', function() {
+        handleTextSelection(originalSrc);
+    });
+}
+// Function to get the selected text from the textarea
+function getSelectedText() {
+    const textArea = document.getElementById('result');
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+    return textArea.value.substring(start, end).trim(); // Trim the text
+}
+// Function to get the selected text and the word before the selection
+function getSelectedTextAndAdjacentWords() {
+    const textArea = document.getElementById('result');
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+    const selectedText = textArea.value.substring(start, end).trim(); // Trimmed selected text
+    const beforeSelection = textArea.value.substring(0, start).trim(); // Text before selection
+    const afterSelection = textArea.value.substring(end).trim(); // Text after selection
+
+    // Split selected text into words
+    const selectedWords = selectedText.split(/\s+/);
+    
+    // Find the last word before the selection
+    const wordsBeforeSelection = beforeSelection.split(/\s+/);
+    const previousWord = wordsBeforeSelection[wordsBeforeSelection.length - 1]; // The last word before selection
+
+    // Find the first word after the selection
+    const wordsAfterSelection = afterSelection.split(/\s+/);
+    const nextWord = wordsAfterSelection.length > 0 ? wordsAfterSelection[0] : null; // The first word after selection
+
+    return { selectedWords, previousWord, nextWord }; // Return selected word(s), previous word, and next word
+}
+
+function handleTextSelection(originalSrc) {
+    const { selectedWords, previousWord, nextWord } = getSelectedTextAndAdjacentWords();
+    console.log("Selected words:", selectedWords);
+    console.log("Previous word:", previousWord);
+    console.log("Next word:", nextWord);
+
+    if (selectedWords.length > 0) {
+        const canvas = document.querySelector('#imagePreview canvas');
+        if (!canvas) return;
+
+        const img = new Image();
+        img.src = originalSrc; // Use the original image to reset
+
+        img.onload = function() {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Redraw the original image
+            
+            highlightTextInImage(selectedWords, ctx, previousWord, nextWord); // Highlight only the selected words
+        };
+    }
+    else{
+		 const canvas = document.querySelector('#imagePreview canvas');
+        if (!canvas) return;
+
+        const img = new Image();
+        img.src = originalSrc; // Use the original image to reset
+
+        img.onload = function() {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Redraw the original image
+            };
+	}
+}
+
+function highlightTextInImage(selectedWords, ctx, previousWord, nextWord) {
+    console.log("Highlighting text in image for:", selectedWords.join(', '));
+
+    let selectedWordObjects = [];
+
+    // Traverse through the wordMapping to find the matching words
+    for (let i = 0; i < wordMapping.length; i++) {
+        const wordObj = wordMapping[i];
+        
+        // Match the first selected word
+        if (wordObj.word === selectedWords[0]) {
+            const firstWordIndex = i;
+            const lastWordIndex = firstWordIndex + selectedWords.length - 1;
+
+            // Ensure the next word is within bounds
+            if (lastWordIndex >= wordMapping.length) continue;
+
+            const lastWordObj = wordMapping[lastWordIndex];
+
+            // Find the previous word (if any)
+            const actualPrevWord = firstWordIndex > 0 ? wordMapping[firstWordIndex - 1].word : null;
+            // Find the next word (if any)
+            const actualNextWord = lastWordIndex < wordMapping.length - 1 ? wordMapping[lastWordIndex + 1].word : null;
+
+            console.log("Actual previous word:", actualPrevWord);
+            console.log("Actual next word:", actualNextWord);
+
+            // Check if the previous word matches and the next word matches
+            const isPreviousWordMatch = (actualPrevWord === previousWord || firstWordIndex === 0);
+            const isNextWordMatch = (actualNextWord === nextWord || lastWordIndex === wordMapping.length - 1);
+
+            console.log("Is previous word match:", isPreviousWordMatch);
+            console.log("Is next word match:", isNextWordMatch);
+
+            // If the previous and next word conditions are met, proceed to highlight
+            if (isPreviousWordMatch && isNextWordMatch) {
+                console.log(`Highlighting the range: '${selectedWords.join(' ')}'`);
+
+                // Add all the selected words bounding boxes to the selectedWordObjects
+                for (let j = firstWordIndex; j <= lastWordIndex; j++) {
+                    selectedWordObjects.push(wordMapping[j]);
+                }
+                break;
+            }
+        }
+    }
+
+    // Now highlight the selected words
+    if (selectedWordObjects.length > 0) {
+        // Get the collective bounding box for all selected words
+        const collectiveBbox = getCollectiveBoundingBox(selectedWordObjects.map(obj => obj.bbox));
+        
+        if (collectiveBbox) {
+            const [x1, y1, x2, y2] = collectiveBbox;
+
+            // Draw the collective bounding box around the selected range
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';  // Highlight color (transparent red)
+            ctx.fillRect(x1, y1, x2 - x1, y2 - y1);  // Draw rectangle around the selected text
+            console.log("Collective bounding box drawn:", collectiveBbox);
+        } else {
+            console.warn("No valid bounding box found for the selected words.");
+        }
+    } else {
+        console.warn("No words matched the selection criteria.");
+    }
+}
+
+
+// Calculate the collective bounding box for multiple bounding boxes
+function getCollectiveBoundingBox(bboxes) {
+    if (bboxes.length === 0) return null;
+
+    let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity;
+
+    for (const bbox of bboxes) {
+        x1 = Math.min(x1, bbox[0]);
+        y1 = Math.min(y1, bbox[1]);
+        x2 = Math.max(x2, bbox[2]);
+        y2 = Math.max(y2, bbox[3]);
+    }
+     return [x1, y1, x2, y2]; // Return collective bounding box as [x1, y1, x2, y2]
+}
+
+
+
+// Get the occurrence index of the selected word
+function getSelectedOccurrence(selectedText) {
+    const textArea = document.getElementById('result');
+    const fullText = textArea.value.replace(/\s+/g, '');  // Remove extra spaces
+    const occurrences = fullText.split(selectedText).length - 1;  // Count occurrences
+    console.log(`Selected text "${selectedText}" is the ${occurrences} occurrence.`);
+    return occurrences;
+}

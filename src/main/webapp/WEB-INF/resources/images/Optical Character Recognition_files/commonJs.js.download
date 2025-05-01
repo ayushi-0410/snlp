@@ -1,0 +1,552 @@
+function speaktextAjax() {
+	var lang = document.getElementById("lang").value;
+	var text = document.getElementById("text").value;
+alert(lang);
+	if (text === "") {
+		swal.fire("Text field cannot be empty.");
+		return;
+	}
+
+	const styleElement = document.createElement('style');
+	document.head.appendChild(styleElement);
+
+	// Update the content of the pseudo-element
+	//styleElement.sheet.insertRule('.loader:after { content: "Converting to speech..."; }', 0);
+	document.getElementById("overlay").style.display = "block";
+	$.ajax({
+		url: 'ajax/textToSpeach',
+		type: 'post',
+		data: {
+			lang: lang,
+			text: text
+		},
+		success: function(response) {
+			var audioElement = document.createElement('audio');
+        audioElement.id = 'audioElement';
+        audioElement.controls = true;
+        audioElement.style.marginBottom = '2%';
+        audioElement.src = 'data:audio/mp3;base64,' + response;
+
+        // Append the audio element to the DOM
+        document.getElementById("audioContainer").innerHTML='';
+       document.getElementById("audioContainer").innerHTML+='<div class="form-group mb-3"><span style="color:#003381; font-weight:500">Output Audio:</span>' 
+        document.getElementById("audioContainer").style.display = "block";
+        document.getElementById("audioContainer").appendChild(audioElement);
+
+        // Play the audio
+        document.getElementById("overlay").style.display = "none";
+        audioElement.play();
+			/*const a = document.createElement('a')
+			a.href = 'data:audio/mp3;base64,' + response;
+			a.setAttribute('download', true)
+			a.click()*/
+		},
+		error: function(xhr, status, error) {
+			swal.fire("Something went worng, Please try again");
+			document.getElementById("overlay").style.display = "none";
+		}
+	});
+}
+function convertAudioToTextAjax() {
+	event.preventDefault();
+	const fileInput = document.getElementById('audiofileinput');
+	//let base64String = await audioToBase64(file);
+	if (fileInput.files.length === 0) {
+		swal.fire("Please select an audio file.");
+		return;
+	}
+	const file = fileInput.files[0];
+	// Check if the selected file is an audio file
+	if (!file.type.startsWith('audio/')) {
+		swal.fire("Please select an audio file.");
+		return;
+	}
+	var formData = new FormData(document.getElementById("asrForm"));
+
+	console.log(formData);
+
+	const styleElement = document.createElement('style');
+	document.head.appendChild(styleElement);
+
+	// Update the content of the pseudo-element
+	styleElement.sheet.insertRule('.loader:after { content: "Converting to text..."; }', 0);
+	document.getElementById("overlay").style.display = "block";
+
+	$.ajax({
+		url: 'ajax/automaticSpeechRecognitionDB',
+		type: 'POST',
+		data: formData,
+		async: true,
+		cache: false,
+		contentType: false,
+		processData: false,
+		success: function(response) {
+			const resultdiv = document.getElementById('result')
+			// resultdiv.value = data.result
+			CKEDITOR.instances['result'].setData(JSON.parse(JSON.stringify(response))['result']);
+			document.getElementById("overlay").style.display = "none";
+		},
+		error: function(xhr, status, error) {
+			swal.fire("Something went worng, Please try again");
+			document.getElementById("overlay").style.display = "none";
+		}
+	});
+}
+
+
+
+async function convertAudioToTextAjax_orign() {
+	const language = document.getElementById('lang').value;
+	const fileInput = document.getElementById('audiofileinput');
+	//let base64String = await audioToBase64(file);
+
+	if (fileInput.files.length === 0) {
+		swal.fire("Please select an audio file.");
+		return;
+	}
+	const file = fileInput.files[0];
+	// Check if the selected file is an audio file
+	if (!file.type.startsWith('audio/')) {
+		swal.fire("Please select an audio file.");
+		return;
+	}
+
+	let base64String = await audioToBase64(file);
+
+	const styleElement = document.createElement('style');
+	document.head.appendChild(styleElement);
+
+	// Update the content of the pseudo-element
+	styleElement.sheet.insertRule('.loader:after { content: "Converting to text..."; }', 0);
+	document.getElementById("overlay").style.display = "block";
+	$.ajax({
+		url: 'ajax/automaticSpeechRecognition',
+		type: 'post',
+		data: {
+			language: language,
+			base64String: base64String
+		},
+		success: function(response) {
+			const resultdiv = document.getElementById('result')
+			// resultdiv.value = data.result
+			CKEDITOR.instances['result'].setData(JSON.parse(JSON.stringify(response))['result']);
+			document.getElementById("overlay").style.display = "none";
+		},
+		error: function(xhr, status, error) {
+			swal.fire("Something went worng, Please try again");
+			document.getElementById("overlay").style.display = "none";
+		}
+	});
+}
+
+async function audioToBase64(audioFile) {
+	return new Promise((resolve, reject) => {
+		let reader = new FileReader();
+		// onerror is catch  (fault data)
+		reader.onerror = reject;
+		reader.onload = (e) => resolve(e.target.result);
+		reader.readAsDataURL(audioFile);
+	});
+}
+
+function translateTextAjax() {
+	$("#trans_text").val('');
+	var sourceLanguage = document.getElementById("sourceLanguage").value;
+	var destLanguage = document.getElementById("destLanguage").value;	
+	var text = document.getElementById("src_text").value;
+	if (text === "") {
+		swal.fire("Text field cannot be empty.");
+		return;
+	}
+	if(sourceLanguage === destLanguage) {
+		swal.fire("Source language and destination language cann't be same.");
+		return;
+	}
+	const styleElement = document.createElement('style');
+	document.head.appendChild(styleElement);
+
+	// Update the content of the pseudo-element
+	styleElement.sheet.insertRule('.loader:after { content: "Translating..."; }', 0);
+	document.getElementById("overlay").style.display = "block";
+
+	alert(sourceLanguage)
+	alert(destLanguage)
+	$.ajax({
+		url: 'ajax/machineTranslation',
+		type: 'post',
+		data: {
+			sourceLanguage: sourceLanguage,
+			destLanguage: destLanguage,
+			text: JSON.stringify(text)
+		},
+		success: function(response) {
+			/*$("#trans_text").val(JSON.parse(JSON.stringify(response))['out']);*/
+			
+			var output = response.output;
+        	var targetText = "";
+
+        // Iterate over each item in the output array
+        output.forEach(function(item) {
+            var target = item.target; // Target text in English
+            // Append target with a new line to the targetText variable
+            targetText += target + "\n";
+        });
+
+        // Append the targetText to the textarea
+        $("#trans_text").val($("#trans_text").val() + targetText);
+		
+			
+			document.getElementById("overlay").style.display = "none";
+		
+			
+		},
+		error: function(xhr, status, error) {
+			swal.fire("Something went worng, Please try again");
+			document.getElementById("overlay").style.display = "none";
+		}
+	});
+}
+
+function transLiterationAjax() {
+	var languagePair = document.getElementById("lang").value;
+	var text = document.getElementById("input-word").value;
+	if (text === "") {
+		swal.fire("Text field cannot be empty.");
+		return;
+	}
+
+	const styleElement = document.createElement('style');
+	document.head.appendChild(styleElement);
+
+	// Update the content of the pseudo-element
+	styleElement.sheet.insertRule('.loader:after { content: "Transliterating..."; }', 0);
+	document.getElementById("overlay").style.display = "block";
+	$.ajax({
+		url: 'ajax/transLteration',
+		type: 'post',
+		data: {
+			languagePair: languagePair,
+			text: text
+		},
+		success: function(response) {
+			document.getElementById("transliterated-word").innerText = JSON.parse(JSON.stringify(response))['result'];
+			document.getElementById("overlay").style.display = "none";
+		},
+		error: function(xhr, status, error) {
+			swal.fire("Something went worng, Please try again");
+			document.getElementById("overlay").style.display = "none";
+		}
+	});
+}
+
+async function convertToOCR_orign() {
+
+	if (document.getElementById("ocr").files.length == 0) {
+		swal.fire("Please select a file.");
+		return false;
+	}
+	var e = document.getElementById("languages");
+	const modalType = e.options[e.selectedIndex].value.trim();
+	if (modalType === "") {
+		swal.fire("Please select a language.");
+		return false;
+	}
+
+	const image = document.getElementById("ocr").files[0];
+
+	//	const previewimg = document.getElementById("previewimg");
+	const imageToBase64 = await imageToBase64Fun(image);
+
+	//const modalType = document.getElementById("languages").value;//     "odia";
+
+	//	previewimg.setAttribute('src', URL.createObjectURL(image));
+
+	const styleElement = document.createElement('style');
+	document.head.appendChild(styleElement);
+
+	// Update the content of the pseudo-element
+	styleElement.sheet.insertRule('.loader:after { content: "Generating text..."; }', 0);
+	document.getElementById("overlay").style.display = "block";
+	$.ajax({
+		url: 'ajax/converToOcr',
+		type: 'post',
+		data: {
+			imageToBase64: imageToBase64,
+			modalType: modalType
+		},
+		success: function(response) {
+
+			if (response.error) {
+				// Handle the error
+				alert(response.error);
+				document.getElementById("overlay").style.display = "none";
+				// Optionally, provide feedback to the user about the error
+				// For example:
+				// alert("An error occurred: " + response.error);
+			} else {
+				// Set data of CKEditor instance with OCR output from the response
+				console.log(response['ocr-output']);
+				response['ocr-output'] = response['ocr-output'].replace(/\n/g, '<br>');
+				CKEDITOR.instances['result'].setData(response['ocr-output']);
+				document.getElementById("overlay").style.display = "none";
+			}
+
+
+
+			//CKEDITOR.instances['result'].setData(JSON.parse(JSON.stringify(response))['ocr-output']);
+		},
+		error: function(xhr, status, error) {  // Callback function executed if the request fails
+			// Handle error here, you can log it or perform any other action
+			alert("AJAX request failed: " + status + ", " + error);
+			document.getElementById("overlay").style.display = "none";
+			// Optionally, you can provide feedback to the user about the error
+			// For example:
+			// alert("An error occurred while processing your request. Please try again later.");
+		}
+	});
+}
+const imageToBase64Fun = file => new Promise((resolve, reject) => {
+	const reader = new FileReader();
+	reader.readAsDataURL(file);
+	reader.onload = () => resolve((reader.result).split(",")[1]);
+	reader.onerror = error => reject(error);
+});
+
+
+/*
+async function ocrImageChange() {
+	CKEDITOR.instances['result'].setData('');
+	const input = document.getElementById('ocr');
+	const image = input.files[0];
+	const fileType = image.type;
+	if (!fileType.startsWith('image/')) {
+		swal.fire("Please upload an image file!");
+		document.getElementById('ocr').value = '';
+		return false;
+	}
+	const filename = image.name;
+	document.getElementById("nameimg").innerText = filename;
+	const previewimg = document.getElementById("previewimg");
+		const imageToBase64 = await imageToBase64Fun(image);
+		const modalType = "odia";
+	previewimg.setAttribute('src', URL.createObjectURL(image));
+}*/
+async function ocrImageChange() {
+	
+	const input = document.getElementById('ocr');
+        const image = input.files[0];
+        const fileType = image.type;
+         //console.log(fileType);
+    if (!fileType.startsWith('image/')) {
+        swal.fire("Please upload an image file!");
+        input.value = '';
+        return false;
+    }
+    if (fileType.startsWith('image/')) {
+    document.getElementById('ocrbtn').style.visibility = "visible";
+	//CKEDITOR.replace('result');
+	CKEDITOR.replace('result',{
+                    	height:400,
+                    	resize_enabled:true                    	
+                    });
+	CKEDITOR.instances['result'].setData('');
+        const filename = image.name;
+	document.getElementById("nameimg").innerText = filename;
+	const previewimg = document.getElementById("previewimg");
+/*	const imageToBase64 = await imageToBase64Fun(image);
+	const modalType = "odia";*/
+	previewimg.setAttribute('src', URL.createObjectURL(image));
+	}
+}
+function convertToOCR__real() {
+	if (document.getElementById("ocr").files.length == 0) {
+		swal.fire("Please select a file.");
+		return false;
+	}
+	var e = document.getElementById("languages");
+	var languages = e.options[e.selectedIndex].value.trim();
+	
+	if (languages === "") {
+		swal.fire("Please select a language.");
+		return false;
+	}
+	var formData = new FormData();
+	var ocr = document.getElementById("ocr").files[0];
+	
+	formData.append('ocr', ocr);
+	formData.append('languages', languages);
+	
+	const styleElement = document.createElement('style');
+	document.head.appendChild(styleElement);
+
+	// Update the content of the pseudo-element
+	styleElement.sheet.insertRule('.loader:after { content: "Generating text..."; }', 0);
+	document.getElementById("overlay").style.display = "block";
+	
+	$.ajax({
+		url: 'ajax/converToOcr',
+		type: 'post',
+		data: formData,
+		processData: false,
+		contentType: false,
+		success: function(response) {
+			if (response.error) {
+				// Handle the error
+				alert(response.error);
+				document.getElementById("overlay").style.display = "none";
+				// Optionally, provide feedback to the user about the error
+				// For example:
+				// alert("An error occurred: " + response.error);
+			} else {
+				// Set data of CKEditor instance with OCR output from the response
+				console.log(response['ocr-output']);
+				response['ocr-output'] = response['ocr-output'].replace(/\n/g, '<br>');
+				CKEDITOR.instances['result'].setData(response['ocr-output']);
+				document.getElementById("overlay").style.display = "none";
+			}
+
+
+
+			//CKEDITOR.instances['result'].setData(JSON.parse(JSON.stringify(response))['ocr-output']);
+		},
+		error: function(xhr, status, error) {  // Callback function executed if the request fails
+			// Handle error here, you can log it or perform any other action
+			alert("AJAX request failed: " + status + ", " + error);
+			document.getElementById("overlay").style.display = "none";
+			// Optionally, you can provide feedback to the user about the error
+			// For example:
+			// alert("An error occurred while processing your request. Please try again later.");
+		}
+	});
+}
+
+function convertToOCR(){
+	if (document.getElementById("ocr").files.length == 0) {
+		swal.fire("Please select a file.");
+		return false;
+	}
+	var e = document.getElementById("languages");
+	var languages = e.options[e.selectedIndex].value.trim();
+	
+	if (languages === "") {
+		swal.fire("Please select a language.");
+		return false;
+	}
+	
+	var m = document.getElementById("model");
+	var model = m.options[m.selectedIndex].value.trim();
+	
+	if(model === ""){
+		swal.fire("Please select a model.")
+	}
+	
+	var c = document.getElementById("col-type");
+	var column = c.options[c.selectedIndex].value.trim();
+	
+	
+	var formData = new FormData();
+	var ocr = document.getElementById("ocr").files[0];
+	
+	formData.append('ocr', ocr);
+	formData.append('languages', languages);
+	formData.append('model', model);
+	formData.append('column', column);
+	
+	const styleElement = document.createElement('style');
+	document.head.appendChild(styleElement);
+
+	// Update the content of the pseudo-element
+	styleElement.sheet.insertRule('.loader:after { content: "Generating text..."; }', 0);
+	document.getElementById("overlay").style.display = "block";
+	
+	$.ajax({
+		url: 'ajax/converToOcr',
+		type: 'post',
+		data: formData,
+		processData: false,
+		contentType: false,
+		success: function(response) {
+			if (response.error) {
+				// Handle the error
+				alert(response.error);
+				document.getElementById("overlay").style.display = "none";
+				// Optionally, provide feedback to the user about the error
+				// For example:
+				// alert("An error occurred: " + response.error);
+			} else {
+				// Set data of CKEditor instance with OCR output from the response
+			//	console.log(response['text']);
+				response['ocr-output'] = response['ocr-output'].replace(/\n/g, '<br>');
+				CKEDITOR.instances['result'].setData(response['ocr-output']);
+				document.getElementById("overlay").style.display = "none";
+			}
+
+
+
+			//CKEDITOR.instances['result'].setData(JSON.parse(JSON.stringify(response))['ocr-output']);
+		},
+		error: function(xhr, status, error) {  // Callback function executed if the request fails
+			// Handle error here, you can log it or perform any other action
+			alert("AJAX request failed: " + status + ", " + error);
+			document.getElementById("overlay").style.display = "none";
+			// Optionally, you can provide feedback to the user about the error
+			// For example:
+			// alert("An error occurred while processing your request. Please try again later.");
+		}
+	});
+}
+
+function submitFeedback() {
+	var name = document.getElementById("name").value;
+	var number = document.getElementById("mobile").value;
+	var domain = document.getElementById("domain").value;
+	var message = document.getElementById("message").value;
+	var userEmail = document.getElementById("userEmail").value;
+
+	if (name.trim() == "") {
+		Swal.fire("Name Can't not Be Empty");
+		return false;
+	}
+	if (number.trim() == "") {
+		Swal.fire("Phone Number Can't not Be Empty");
+		return false;
+	}
+	if (!/^[0-9]{10}$/.test(number)) {
+		swal.fire("Fill 10 numeric digits mobile number");
+		return false;
+	}
+	if (userEmail.trim() == "") {
+		Swal.fire("Email Can't not Be Empty");
+		return false;
+	}
+	if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)){
+		swal.fire("Email format is invalid");
+		return false;
+	}	
+	if (domain.trim() == "") {
+		Swal.fire("Domain Can't not Be Empty");
+		return false;
+	}
+	if (message.trim() == "") {
+		Swal.fire("Message Can't not Be Empty");
+		return false;
+	}
+	$.ajax({
+		url: 'ajax/submitFeedBack',
+		type: 'POST',
+		data: {
+			userName: name,
+			userNumber: number,
+			domainFor: domain,
+			feedbackMessage: JSON.stringify(message),
+			userEmail: userEmail
+		},
+		success: function(responsetext) {
+			Swal.fire(responsetext);
+		},
+		error: function() {
+
+		}
+
+	});
+}
