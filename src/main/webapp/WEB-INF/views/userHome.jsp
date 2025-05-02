@@ -1260,23 +1260,25 @@ Project Engineer
 				<div class="col-md-6 col-12 eqal-height">
 					<div class="row">
 						<div class="six columns">
-						 <input placeholder="Name"
-								name="name" type="text" maxlength="30" id="name" tabindex="18"
-								oncopy="return false" onpaste="return false"
-								class="textBox u-full-width" onkeypress="noSpecial(event)">
+						<input type="text" name="fake_name" style="display:none" autocomplete="off" />
+						 <input placeholder="Name" autocomplete="off"
+								name="user_name" type="text" maxlength="30" id="name" tabindex="18"
+								oncopy="" onpaste=""
+								class="textBox u-full-width">
 						</div>
 						<div class="six columns">
-							<input placeholder= "Mobile Number"
+							<input placeholder= "Mobile Number" autocomplete="off"
 								name="mobile" type="number" maxlength="10" id="mobile"
 								tabindex="5" oncopy="return false" onpaste="return false"
-								class="textBox u-full-width" onkeypress="isInputNumber(event)"
-								onkeyup="check(); return false;">
+								class="textBox u-full-width" >
 						</div>
 					</div>
 					<div class="row mt-3" style="margin-top:3%">
 						<div class="twelve columns">
 							 
-							<input placeholder = "Email" name="userEmail" type="email" id="userEmail" tabindex="18" oncopy="return false" onpaste="return false" class="textBox u-full-width" onkeypress="noSpecial(event)">
+							<input autocomplete="off" placeholder = "Email" name="userEmail" type="email" id="userEmail" 
+							tabindex="18" oncopy="return false" 
+							onpaste="return false" class="textBox u-full-width" onkeypress="">
 						</div>
 					</div>
 					<div class="row mt-3">
@@ -1355,39 +1357,34 @@ Project Engineer
         <!-- partial -->
         <script src='https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js'></script>
         <script src="${pageContext.request.contextPath}/resources/js/script.js" type="text/javascript"></script>
-		<!-- <script>
-		function setActiveLink(clickedLink) {
-		    // Remove active class from all links
-		    const navLinks = document.querySelectorAll('.nav-link');
-		    navLinks.forEach(link => {
-		        link.classList.remove('active');
-		        alert("removed active on : "+ link);
-		    });
+		
+		
+		<script>
+  // Prevent special characters in the name field
+  function noSpecial(event) {
+    const char = String.fromCharCode(event.which);
+    const allowed = /^[a-zA-Z0-9 ]$/;
+    if (!allowed.test(char)) {
+      event.preventDefault();
+    }
+  }
 
-		    // Add active class to the clicked link
-		    clickedLink.classList.add('active');
-			alert("clickedLink == " + clickedLink);
-		    // Smooth scroll to the target div
-		    const targetId = clickedLink.getAttribute('href').substring(1); // Get the ID from the href (e.g., #section1 -> section1)
-		    const targetDiv = document.getElementById(targetId);
-		    if (targetDiv) {
-		        targetDiv.scrollIntoView({
-		            behavior: 'smooth', // Smooth scrolling
-		            block: 'start'     // Align to the top of the viewport
-		        });
-		        clickedLink.classList.remove('active');
-		    }
-		}
+  // Allow only numeric input for mobile field
+  function isInputNumber(event) {
+    const char = String.fromCharCode(event.which);
+    if (!/^\d$/.test(char)) {
+      event.preventDefault();
+    }
+  }
 
-		// Attach the function to click events on nav links
-		document.querySelectorAll('.nav-link').forEach(link => {
-		    link.addEventListener('click', function (e) {
-		        e.preventDefault(); // Prevent default anchor click behavior
-		        setActiveLink(this);
-		    });
-		});
-
-</script> -->
+  // Basic check to ensure mobile number is 10 digits
+  function check() {
+    const mobileInput = document.getElementById("mobile");
+    if (mobileInput.value.length > 10) {
+      mobileInput.value = mobileInput.value.slice(0, 10); // Trim to 10 digits
+    }
+  }
+</script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 	  const carousel = document.getElementById("hero-carousel");
@@ -1468,44 +1465,7 @@ function scrollToTop() {
     }, 500); // Adjust delay as needed
 }
 </script>
-		<!-- <script>
-	    var slideIndex = 0;
-	    showSlides();
-
-	    function showSlides() {
-	        var i;
-	        console.log("hello");
-	        var slides = document.getElementsByClassName("mySlides");
-	        for (i = 0; i < slides.length; i++) {
-	            slides[i].style.display = "none";
-	        }
-	        slideIndex++;
-	        if (slideIndex > slides.length) {slideIndex = 1}
-	        slides[slideIndex-1].style.display = "block";
-	        setTimeout(showSlides, 2000); // Change image every 2 seconds (2000 milliseconds)
-	    }	</script> -->
-	    <!-- <script>
-	    document.addEventListener('DOMContentLoaded', function() {
-	        var longDiv = document.querySelector('.long-div');
-	        var arrowUp = document.getElementById('arrow-up');
-	        var arrowDown = document.getElementById('arrow-down');
-	        
-	        // Initial setup: Show half of the div
-	        longDiv.style.height = '50px';
-	        
-	        arrowUp.addEventListener('click', function() {
-	            // Show half of the div
-	            longDiv.style.height = '50px';
-	        });
-
-	        arrowDown.addEventListener('click', function() {
-	            // Show full div
-	            longDiv.style.height = 'auto';
-	        });
-	    });
-
-
-	    </script> -->
+		
 	    
         <script>
                                 function submit()

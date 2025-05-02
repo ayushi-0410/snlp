@@ -26,6 +26,14 @@
   box-sizing: border-box;
   font-family: "Poppins" , sans-serif;
 }
+
+.input-box .fa-eye, 
+.input-box .fa-eye-slash {
+    position: absolute;
+    right: 10px;
+    color: #040436fa;
+    cursor: pointer;
+}
 .loginSection{
   min-height: 100vh;
   display: flex;
@@ -332,7 +340,7 @@
 	</c:if>
             
             
-          <form action="<c:url value='/login' />" method="POST">
+          <form action="<c:url value='/login' />" method="POST" autocomplete="off">
             <div class="input-boxes">
               <div class="input-box">
                 <i class="fas fa-envelope"></i>
@@ -340,8 +348,9 @@
               </div>
               <div class="input-box">
                 <i class="fas fa-lock"></i>
-                <input type="password" id="password" name="password" placeholder="Enter your password" required>
-              </div>
+                <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
+                <i class="fas fa-eye" id="toggleLoginPassword" style="cursor: pointer; right: 10px;"></i>
+            </div>
               <div class="text"><a href="#">Forgot password?</a></div>
               <div class="text"><a href="${pageContext.request.contextPath}/logInAsGuest">Login as guest</a></div>
               <div class="button input-box">
@@ -358,7 +367,7 @@
       </div>
         <div class="signup-form">
           <div class="title">Signup</div>
-        <form action="${pageContext.request.contextPath}/signUp" method="post" onsubmit="return validateForm()">
+        <form action="${pageContext.request.contextPath}/signUp" method="post" autocomplete="off" onsubmit="return validateForm()">
         
         
             <div class="input-boxes">
@@ -373,11 +382,13 @@
               <div class="input-box">
                 <i class="fas fa-lock"></i>
                 <input type="password" placeholder="Enter your password" id="password" name="password" required>
-              </div>
-              <div class="input-box">
+                <i class="fas fa-eye" id="toggleSignupPassword" style="cursor: pointer; right: 10px;"></i>
+            </div>
+            <div class="input-box">
                 <i class="fas fa-lock"></i>
                 <input type="password" placeholder="Confirm password" id="cpassword" name="cpassword" required>
-              </div>
+                <i class="fas fa-eye" id="toggleConfirmPassword" style="cursor: pointer; right: 10px;"></i>
+            </div>
               <div class="button input-box">
                 <input type="submit" value="Sign Up">
               </div>
@@ -436,45 +447,53 @@ function validateForm() {
     const password = signupForm.querySelector("#password").value;
     const cpassword = signupForm.querySelector("#cpassword").value;
     
+    // Invalid metacharacters check for name
+    const metaCharRegex = /^[a-zA-Z0-9 _-]+$/;
     if (name === "") {
         alert("Please enter your name");
         return false;
     }
-
-    // Disallow metacharacters in name (like < > & / \ " ')
-    const metaCharRegex = /^[a-zA-Z0-9 _-]+$/;
     if (!metaCharRegex.test(name)) {
-        alert("Name can only contain letters, numbers, spaces, underscores, and hyphens. Special characters like < > & are not allowed.");
+        alert("Name can only contain letters, numbers, spaces, underscores, and hyphens.");
         return false;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        alert("Please enter a valid email address");
-        return false;
-    }
- // Disallow metacharacters in email
     const emailMetaCharRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailMetaCharRegex.test(email)) {
-        alert("Email contains invalid characters. Only standard email format is allowed.");
+    if (!emailRegex.test(email) || !emailMetaCharRegex.test(email)) {
+        alert("Please enter a valid email address without special characters.");
         return false;
     }
 
-    // Password length validation
-    if (password.length < 8) {
-        alert("Password must be at least 8 characters long");
+    // Password length
+    if (password.length < 12 || password.length > 64) {
+        alert("Password must be between 12 and 64 characters long.");
         return false;
     }
-	if(isNot != "Password_"){
-		console.log("okay you re here. and idk what am i doing atp")
-	}
-    // Password strength validation
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(password)) {
-        alert("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
+
+    // Password complexity
+    const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+    if (!passwordStrengthRegex.test(password)) {
+        alert("Password must include at least one uppercase letter, one lowercase letter, one number, and one special character.");
         return false;
     }
+
+    // No common words or username
+    const defaultPasswords = ['admin', 'cdac', 'root'];
+    const lowerPassword = password.toLowerCase();
+    if (defaultPasswords.some(word => lowerPassword.includes(word)) || lowerPassword.includes(name.toLowerCase())) {
+        alert("Password should not contain common words like 'admin', 'cdac', 'root' or your username.");
+        return false;
+    }
+
+    // No sequences like 123 or abc
+   if (hasSequentialPattern(password)) {
+    alert("Password should not contain sequential patterns like '12345' or 'abcdef'.");
+    return false;
+}
+
+
     // Password matching validation
     if (password !== cpassword) {
         alert("Passwords do not match");
@@ -483,5 +502,60 @@ function validateForm() {
     
     return true;
 }
+
+function hasSequentialPattern(password) {
+    const minSeqLength = 3;
+
+    const checkSequence = (str) => {
+        for (let i = 0; i <= str.length - minSeqLength; i++) {
+            let isNumSeq = true;
+            let isAlphaSeq = true;
+
+            for (let j = 1; j < minSeqLength; j++) {
+                const prev = str.charCodeAt(i + j - 1);
+                const curr = str.charCodeAt(i + j);
+                if (curr !== prev + 1) isNumSeq = false;
+                if (curr !== prev + 1) isAlphaSeq = false;
+            }
+
+            if (isNumSeq || isAlphaSeq) return true;
+        }
+        return false;
+    };
+
+    return checkSequence(password.toLowerCase());
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle for login password
+    const toggleLoginPassword = document.querySelector("#toggleLoginPassword");
+    const loginPassword = document.querySelector("#loginPassword");
+
+    // Toggle for signup password
+    const toggleSignupPassword = document.querySelector("#toggleSignupPassword");
+    const signupPassword = document.querySelector("#password");
+
+    // Toggle for confirm password
+    const toggleConfirmPassword = document.querySelector("#toggleConfirmPassword");
+    const confirmPassword = document.querySelector("#cpassword");
+
+    function togglePasswordVisibility(toggleButton, passwordField) {
+        toggleButton.addEventListener('click', function() {
+            // Toggle password visibility
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+            
+            // Toggle eye icon
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    }
+
+    // Initialize toggle functionality for all password fields
+    togglePasswordVisibility(toggleLoginPassword, loginPassword);
+    togglePasswordVisibility(toggleSignupPassword, signupPassword);
+    togglePasswordVisibility(toggleConfirmPassword, confirmPassword);
+});
+
 </script>
 </html>
